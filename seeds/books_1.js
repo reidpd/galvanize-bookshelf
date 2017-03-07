@@ -9,7 +9,7 @@ exports.seed = function(knex) {
       return Promise.all([
         // Inserts seed entries
         knex('books').insert({
-          id: 1,
+          // id: 1,
           title: 'JavaScript, The Good Parts',
           author: 'Douglas Crockford',
           genre: 'JavaScript',
@@ -19,7 +19,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 2,
+          // id: 2,
           title: 'Learning React Native',
           author: 'Bonnie Eisenman',
           genre: 'React',
@@ -29,7 +29,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 3,
+          // id: 3,
           title: 'Functional JavaScript',
           author: 'Michael Fogus',
           genre: 'JavaScript',
@@ -39,7 +39,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 4,
+          // id: 4,
           title: 'React: Up & Running',
           author: 'Stoyan Stefanov',
           genre: 'React',
@@ -49,7 +49,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 5,
+          // id: 5,
           title: 'Learning JavaScript Design Patterns',
           author: 'Addy Osmani',
           genre: 'JavaScript',
@@ -59,7 +59,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 6,
+          // id: 6,
           title: 'JavaScript with Promises',
           author: 'Daniel Parker',
           genre: 'JavaScript',
@@ -69,7 +69,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 7,
+          // id: 7,
           title: 'AngularJS: Up and Running',
           author: 'Shyam Seshadri',
           genre: 'Angular',
@@ -79,7 +79,7 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         }),
         knex('books').insert({
-          id: 8,
+          // id: 8,
           title: 'Web Development with Node and Express',
           author: 'Ethan Brown',
           genre: 'Node',
@@ -89,5 +89,8 @@ exports.seed = function(knex) {
           updated_at: new Date('2016-06-26 14:26:16 UTC')
         })
       ]);
+    })
+    .then(() => {
+      return knex.raw("SELECT setval('books_id_seq', (SELECT MAX(id) FROM books) );");
     });
 };
