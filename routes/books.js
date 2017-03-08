@@ -30,6 +30,12 @@ router.get('/books', (req, res) => {
 });
 
 router.get('/books/:id', (req, res) => {
+  // let booksLength;
+  // knex('books').max('id').then((max_num) => { booksLength = max_num; });
+  // if (req.params.id > booksLength - 1 || req.params.id < 0 || Number.isNaN(req.params.id)) {
+  //   res.set('Content-Type', /plain/).status(404).send('Not Found');
+  //   next();
+  // }
   knex('books')
   .where('id', '=', req.params.id)
   .then((book) => {
