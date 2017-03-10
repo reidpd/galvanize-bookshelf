@@ -3,9 +3,7 @@
 'use strict';
 
 const express = require('express');
-const env = process.env.node_env || 'test';
-const config = require('../knexfile.js')[env];
-const knex = require('knex')(config);
+const knex = require('../knex.js')
 
 const pg = require('pg');
 const bodyParser = require('body-parser');
@@ -23,6 +21,7 @@ router.use(function timeLog (req, res, next) {
 router.get('/books', (req, res) => {
   knex('books').orderBy('title', 'asc')
   .then((books) => {
+    console.log(books);
     res.status(200).json(humps.camelizeKeys(books));
   }).catch((err) => {
     console.log(err);
@@ -56,9 +55,9 @@ router.post('/books', (req, res) => {
   };
 
   knex('books')
-  .insert(humps.decamelizeKeys(newBook))
-  .then(() => {
-    res.status(200).json(humps.camelizeKeys(newBook));
+  .insert(newBook, "*")
+  .then((newInsertedBook) => {
+    res.status(200).json(humps.camelizeKeys(newInsertedBook[0]));
   }).catch((err) => {
     console.log('Houston, we have a problem!');
     console.log(err);
