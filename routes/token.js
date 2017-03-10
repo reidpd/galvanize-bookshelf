@@ -25,8 +25,12 @@ router.get('/token', (req, res, next) => {
 });
 
 router.post('/token', (req, res, next) => {
-  knex('users').where('email', '=', req.body.email).then((userDataArray) => {
+  knex('users').where('email', req.body.email).then((userDataArray) => {
     const userInfo = userDataArray[0];
+    if (userInfo === undefined) {
+      res.set('Content-Type', 'text/plain');
+      return res.status(400).send('Bad email or password');
+    }
     bcrypt.compare(req.body.password, userInfo.hashed_password).then((userAuth) => {
       if (userAuth) {
         const claim = { userId: req.body.email }; // this is our 'session'
@@ -51,17 +55,18 @@ router.post('/token', (req, res, next) => {
 
         res.status(200).send(responseObj);
       } else {
-        res.status(200).send(false);
+        res.status(400).send('Bad email or password');
       }
+    }).catch((badPass) => {
+      // console.error(badPass);
+      res.set('Content-Type', 'text/plain');
+      res.status(400).send('Bad email or password');
     });
   });
 });
 
 router.delete('/token', (req, res) => {
-  
+  res.cookie('token', '').status(200).send();
 });
-
-
-
 
 module.exports = router;
