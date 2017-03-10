@@ -21,7 +21,7 @@ router.use(function timeLog (req, res, next) {
 router.get('/books', (req, res) => {
   knex('books').orderBy('title', 'asc')
   .then((books) => {
-    console.log(books);
+    // console.log(books);
     res.status(200).json(humps.camelizeKeys(books));
   }).catch((err) => {
     console.log(err);
