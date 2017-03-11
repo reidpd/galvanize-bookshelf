@@ -3,7 +3,7 @@
 'use strict';
 
 const express = require('express');
-const knex = require('../knex.js')
+const knex = require('../knex.js');
 
 const pg = require('pg');
 const bodyParser = require('body-parser');
@@ -29,18 +29,13 @@ router.get('/books', (req, res) => {
 });
 
 router.get('/books/:id', (req, res) => {
-  // let booksLength;
-  // knex('books').max('id').then((max_num) => { booksLength = max_num; });
-  // if (req.params.id > booksLength - 1 || req.params.id < 0 || Number.isNaN(req.params.id)) {
-  //   res.set('Content-Type', /plain/).status(404).send('Not Found');
-  //   next();
-  // }
   knex('books')
   .where('id', '=', req.params.id)
   .then((book) => {
     res.status(200).json(humps.camelizeKeys(book[0]));
   }).catch((err) => {
-    console.log(err);
+    console.error(err);
+    // res.redirect('/');
   });
 });
 
@@ -86,7 +81,12 @@ router.patch('/books/:id', (req, res) => {
 
 router.delete('/books/:id', (req, res) => {
   let deletion;
-  knex('books').select('title', 'author', 'genre', 'description', 'cover_url').where('id', '=', req.params.id).then((obj) => { deletion = obj; });
+
+  knex('books')
+  .select('title', 'author', 'genre', 'description', 'cover_url')
+  .where('id', '=', req.params.id)
+  .then((obj) => { deletion = obj; });
+
   knex('books').where('id', '=', req.params.id).del()
   .then(() => {
     res.status(200).json(humps.camelizeKeys(deletion[0]));
@@ -94,5 +94,9 @@ router.delete('/books/:id', (req, res) => {
     console.log(err);
   });
 });
+
+// router.use('/', () => {
+//   res.status(404).send('Not Found');
+// });
 
 module.exports = router;

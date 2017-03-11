@@ -8,9 +8,7 @@ exports.up = function(knex, Promise) {
     │created_at      │timestamp with time zone │not null default now()                                │
     │updated_at      │timestamp with time zone │not null default now() */
     table.increments('id').primary();
-    console.log('id set');
     table.integer('book_id').notNullable().references('id').inTable('books').onDelete('CASCADE');
-    console.log('book_id set');
     table.integer('user_id').notNullable().references('id').inTable('users').onDelete('CASCADE');
     table.timestamps(true, true);
     knex.raw("SELECT setval('users_id_seq', (SELECT MAX(id) FROM users));");
