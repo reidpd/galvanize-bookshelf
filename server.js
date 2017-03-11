@@ -31,7 +31,6 @@ app.use(cookieParser());
 const path = require('path');
 
 app.use(express.static(path.join('public')));
-
 // CSRF protection
 app.use((req, res, next) => {
   if (/json/.test(req.get('Accept'))) {
@@ -51,11 +50,17 @@ app.use(favorites);
 app.use(token);
 app.use(users);
 
-app.use((_req, res) => {
-  res.sendStatus(404);
+// app.use((_req, res) => {
+//   res.sendStatus(404);
+// });
+app.use('/', (req,res) => {
+  res.set('Content-Type', 'plain/text');
+  console.log('it wont go away');
+  res.status(404).send('Not Found');
 });
 
 // eslint-disable-next-line max-params
+// console.log("I'm in here!");
 app.use((err, _req, res, _next) => {
   if (err.output && err.output.statusCode) {
     return res

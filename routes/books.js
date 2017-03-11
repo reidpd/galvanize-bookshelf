@@ -1,5 +1,7 @@
 // eslint-disable-next-line new-cap
 /* eslint-disable camelcase */
+// eslint-disable newline-after-var
+/* eslint-disable max-len*/
 'use strict';
 
 const express = require('express');
@@ -21,45 +23,57 @@ router.use(function timeLog (req, res, next) {
 router.get('/books', (req, res) => {
   knex('books').orderBy('title', 'asc')
   .then((books) => {
-    // console.log(books);
     res.status(200).json(humps.camelizeKeys(books));
   }).catch((err) => {
-    console.log(err);
+    console.error(err);
   });
 });
 
-router.get('/books/:id', (req, res) => {
+router.get('/books/:id', (req, res, next) => {
+  if (isNaN(req.params.id) || req.params.id < 0) { next(); }
   knex('books')
-  .where('id', '=', req.params.id)
+  .where('id', req.params.id)
   .then((book) => {
+    if (book.length===0) { next(); }
     res.status(200).json(humps.camelizeKeys(book[0]));
-  }).catch((err) => {
-    console.error(err);
-    // res.redirect('/');
+  }).catch(() => {
+    next();
   });
 });
 
 router.post('/books', (req, res) => {
-  const newBook = {
-    // id: 9,
-    title: req.body.title,
-    author: req.body.author,
-    genre: req.body.genre,
-    description: req.body.description,
-    cover_url: req.body.coverUrl
-  };
+  if (!req.body.title || !req.body.author || !req.body.genre || !req.body.description || !req.body.coverUrl) {
+    res.set('Content-Type', 'plain/text');
+    res.status('400');
+    if (!req.body.title) { res.send('Title must not be blank'); }
+    else if (!req.body.author) { res.send('Author must not be blank'); }
+    else if (!req.body.genre) { res.send('Genre must not be blank'); }
+    else if (!req.body.description) { res.send('Description must not be blank'); }
+    else if (!req.body.cover_url) { res.send('Cover URL must not be blank'); }
+  } else {
+    console.log('comes before error');
+    const newBook = {
+      // id: 9,
+      title: req.body.title,
+      author: req.body.author,
+      genre: req.body.genre,
+      description: req.body.description,
+      cover_url: req.body.coverUrl
+    };
 
-  knex('books')
-  .insert(newBook, "*")
-  .then((newInsertedBook) => {
-    res.status(200).json(humps.camelizeKeys(newInsertedBook[0]));
-  }).catch((err) => {
-    console.log('Houston, we have a problem!');
-    console.log(err);
-  });
+    knex('books')
+    .insert(newBook, "*")
+    .then((newInsertedBook) => {
+      res.status(200).send(humps.camelizeKeys(newInsertedBook[0]));
+    }).catch((err) => {
+      console.log('Houston, we have a problem!');
+      console.log(err);
+    });
+  }
 });
 
-router.patch('/books/:id', (req, res) => {
+router.patch('/books/:id', (req, res, next) => {
+  if (isNaN(req.params.id) || req.params.id < 1) { next(); }
   const updatedBook = {
     id: req.params.id,
     title: req.body.title,
@@ -68,35 +82,38 @@ router.patch('/books/:id', (req, res) => {
     description: req.body.description,
     cover_url: req.body.coverUrl
   };
-
   knex('books')
   .where('id', '=', req.params.id)
   .update(humps.decamelizeKeys(updatedBook))
-  .then(() => {
+  .then((response) => {
+    if (response===0) { next(); }
     res.status(200).json(humps.camelizeKeys(updatedBook));
   }).catch((err) => {
-    console.log(err);
+    next();
   });
 });
 
-router.delete('/books/:id', (req, res) => {
-  let deletion;
-
-  knex('books')
-  .select('title', 'author', 'genre', 'description', 'cover_url')
-  .where('id', '=', req.params.id)
-  .then((obj) => { deletion = obj; });
-
-  knex('books').where('id', '=', req.params.id).del()
-  .then(() => {
-    res.status(200).json(humps.camelizeKeys(deletion[0]));
-  }).catch((err) => {
-    console.log(err);
-  });
+router.delete('/books/:id', (req, res, next) => {
+  if (isNaN(req.params.id) || req.params.id < 1) {
+    next();
+  } else {
+    let deletion;
+    knex('books')
+    .select('title', 'author', 'genre', 'description', 'cover_url')
+    .where('id', '=', req.params.id)
+    .then((obj) => {
+      if (obj.length===0) { next(); } else {
+        deletion = obj;
+        knex('books').where('id', '=', req.params.id).del()
+        .then(() => {
+          res.status(200).json(humps.camelizeKeys(deletion[0]));
+        }).catch((err) => {
+          console.log(err);
+          next();
+        });
+      }
+    });
+  }
 });
-
-// router.use('/', () => {
-//   res.status(404).send('Not Found');
-// });
 
 module.exports = router;
