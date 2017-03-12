@@ -1,11 +1,7 @@
-/* eslint-disable camelcase */
-
-'use strict';
-
-exports.seed = function(knex) {
+exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
   return knex('books').del()
-    .then(() => {
+    .then(function () {
       return Promise.all([
         // Inserts seed entries
         knex('books').insert({
@@ -90,7 +86,7 @@ exports.seed = function(knex) {
         })
       ]);
     })
-    .then(() => {
-      return knex.raw("SELECT setval('books_id_seq', (SELECT MAX(id) FROM books) );");
-    });
+    .then(function(){
+      return knex.raw(`SELECT setval('books_id_seq', (SELECT MAX(id) FROM books));`)
+    })
 };
