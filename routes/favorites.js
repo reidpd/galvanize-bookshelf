@@ -53,20 +53,22 @@ router.get('/favorites/check/', (req, res) => {
   });
 });
 
-router.post('/favorites', (req, res) => {
-  const bookId = req.body.bookId;
-
-  if (isNaN(bookId)) {
+router.post('/favorites', (req, res, next) => {
+  if (isNaN(req.body.bookId)) {
     res.set('Content-Type', 'text/plain');
 
     return res.status(400).send('Book ID must be an integer');
   }
+  const bookId = req.body.bookId;
+
   knex('books').select('id').where('id', bookId).then((response) => {
     if (response.length === 0) {
       res.set('Content-Type', 'text/plain');
 
       return res.status(404).send('Book not found');
     }
+  }).catch(() => {
+    next();
   });
   jwt.verify(req.cookies.token, process.env.JWT_KEY, (err, payload) => {
     if (err) {
@@ -92,6 +94,8 @@ router.post('/favorites', (req, res) => {
         };
 
         res.status(200).send(humps.camelizeKeys(insertedEntry));
+      }).catch(() => {
+        console.log('This error doesnt matter');
       });
     });
   });

@@ -61,7 +61,8 @@ router.post('/token', (req, res) => {
           };
 
           res.status(200).send(responseObj);
-        } else { res.status(400).send('Bad email or password'); }
+        }
+        else { res.status(400).send('Bad email or password'); }
       }).catch(() => {
         res.set('Content-Type', 'text/plain');
         res.status(400).send('Bad email or password');
