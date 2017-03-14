@@ -60,18 +60,31 @@ app.use('/', (req,res) => {
 });
 
 // eslint-disable-next-line max-params
-app.use((err, _req, res, _next) => {
-  if (err.output && err.output.statusCode) {
-    return res
-      .status(err.output.statusCode)
-      .set('Content-Type', 'text/plain')
-      .send(err.message);
-  }
 
-  // eslint-disable-next-line no-console
-  console.error(err.stack);
+// this code was used for original master, when errors had statusCodes and messages
+// app.use((err, _req, res, _next) => {
+//   console.log('goes to expected server fn');
+//   if (err.output && err.output.statusCode) {
+//     return res
+//       .status(err.output.statusCode)
+//       .set('Content-Type', 'text/plain')
+//       .send(err.message);
+//   }
+//
+//   // eslint-disable-next-line no-console
+//   console.error(err.stack);
+//   res.sendStatus(500);
+// });
+
+// this fn is purely for validations branch
+app.use((err, _req, res, _next) => {
+  res.set('Content-Type', 'text/plain');
+  if (err.status) {
+    return res.status(err.status).send(err);
+  }
+  console.error(err);
   res.sendStatus(500);
-});
+})
 
 const port = process.env.PORT || 8000;
 

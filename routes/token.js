@@ -9,6 +9,8 @@ const knex = require('../knex.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-as-promised');
 const humps = require('humps');
+const ev = require('express-validation');
+const validations = require('../validations/token');
 
 router.get('/token', (req, res, next) => {
   jwt.verify(req.cookies.token, process.env.JWT_KEY, (err) => {
@@ -23,14 +25,14 @@ router.get('/token', (req, res, next) => {
   });
 });
 
-router.post('/token', (req, res, next) => {
-  if (!req.body.email || !req.body.password) {
-    res.set('Content-Type', 'text/plain');
-    res.status(400);
-    if (!req.body.email) { res.send('Email must not be blank'); }
-    else { res.send('Password must not be blank'); }
-  }
-  else {
+router.post('/token', ev(validations.post), (req, res, next) => {
+  // if (!req.body.email || !req.body.password) {
+  //   res.set('Content-Type', 'text/plain');
+  //   res.status(400);
+  //   if (!req.body.email) { res.send('Email must not be blank'); }
+  //   else { res.send('Password must not be blank'); }
+  // }
+  // else {
     knex('users').where('email', req.body.email).then((userDataArray) => {
       const userInfo = userDataArray[0];
       if (userInfo === undefined) {
@@ -68,7 +70,7 @@ router.post('/token', (req, res, next) => {
         res.status(400).send('Bad email or password');
       });
     });
-  }
+  // }
 });
 
 router.delete('/token', (req, res) => {

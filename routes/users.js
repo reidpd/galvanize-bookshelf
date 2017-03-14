@@ -7,17 +7,19 @@ const bcrypt = require('bcrypt-as-promised');
 const knex = require('../knex.js');
 const jwt = require('jsonwebtoken');
 const humps = require('humps');
+const ev = require('express-validation');
+const validations = require('../validations/users');
 
-router.post('/users', (req, res, next) => {
+router.post('/users', ev(validations.post), (req, res, next) => {
   // if email or password are empty, send appropriate error message
-  if (!req.body.email || !req.body.password) {
-    res.set('Content-Type', 'text/plain');
-    res.status('400');
-    if (!req.body.email) { res.send('Email must not be blank'); }
-    else { res.send('Password must be at least 8 characters long'); }
-  }
+  // if (!req.body.email || !req.body.password) {
+  //   res.set('Content-Type', 'text/plain');
+  //   res.status('400');
+  //   if (!req.body.email) { res.send('Email must not be blank'); }
+  //   else { res.send('Password must be at least 8 characters long'); }
+  // }
   // else, search db for user whose email matches req body email to reject duplicate usernames
-  else {
+  // else {
     knex('users').select('email').where('email', req.body.email).then((response) => {
       if (response.length!==0) { // if user already
         res.set('Content-Type', 'text/plain');
@@ -59,7 +61,7 @@ router.post('/users', (req, res, next) => {
         });
       }
     });
-  }
+  // }
 });
 
 module.exports = router;

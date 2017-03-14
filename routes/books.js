@@ -10,6 +10,8 @@ const knex = require('../knex.js');
 const pg = require('pg');
 const bodyParser = require('body-parser');
 const humps = require('humps');
+const ev = require('express-validation');
+const validations = require('../validations/books');
 
 const router = express.Router();
 
@@ -41,16 +43,16 @@ router.get('/books/:id', (req, res, next) => {
   });
 });
 
-router.post('/books', (req, res) => {
-  if (!req.body.title || !req.body.author || !req.body.genre || !req.body.description || !req.body.coverUrl) {
-    res.set('Content-Type', 'plain/text');
-    res.status('400');
-    if (!req.body.title) { res.send('Title must not be blank'); }
-    else if (!req.body.author) { res.send('Author must not be blank'); }
-    else if (!req.body.genre) { res.send('Genre must not be blank'); }
-    else if (!req.body.description) { res.send('Description must not be blank'); }
-    else if (!req.body.cover_url) { res.send('Cover URL must not be blank'); }
-  } else {
+router.post('/books', ev(validations.post), (req, res) => {
+  // if (!req.body.title || !req.body.author || !req.body.genre || !req.body.description || !req.body.coverUrl) {
+  //   res.set('Content-Type', 'plain/text');
+  //   res.status('400');
+  //   if (!req.body.title) { res.send('Title must not be blank'); }
+  //   else if (!req.body.author) { res.send('Author must not be blank'); }
+  //   else if (!req.body.genre) { res.send('Genre must not be blank'); }
+  //   else if (!req.body.description) { res.send('Description must not be blank'); }
+  //   else if (!req.body.coverUrl) { res.send('Cover URL must not be blank'); }
+  // } else {
     const newBook = {
       // id: 9,
       title: req.body.title,
@@ -68,11 +70,11 @@ router.post('/books', (req, res) => {
       console.log('Houston, we have a problem!');
       console.log(err);
     });
-  }
+  // }
 });
 
-router.patch('/books/:id', (req, res, next) => {
-  if (isNaN(req.params.id) || req.params.id < 1) { next(); }
+router.patch('/books/:id', ev(validations.patch), (req, res, next) => {
+  // if (isNaN(req.params.id) || req.params.id < 1) { next(); }
   const updatedBook = {
     id: req.params.id,
     title: req.body.title,

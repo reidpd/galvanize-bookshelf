@@ -9,6 +9,8 @@ const knex = require('../knex.js');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt-as-promised');
 const humps = require('humps');
+const ev = require('express-validation');
+const validations = require('../validations/favorites');
 
 router.get('/favorites', (req, res, next) => {
   jwt.verify(req.cookies.token, process.env.JWT_KEY, (err) => {
@@ -53,12 +55,12 @@ router.get('/favorites/check/', (req, res, next) => {
   });
 });
 
-router.post('/favorites', (req, res, next) => {
+router.post('/favorites', ev(validations.post), (req, res, next) => {
   const bookId = req.body.bookId;
-  if (isNaN(bookId)) {
-    res.set('Content-Type', 'text/plain');
-    return res.status(400).send('Book ID must be an integer');
-  }
+  // if (isNaN(bookId)) {
+  //   res.set('Content-Type', 'text/plain');
+  //   return res.status(400).send('Book ID must be an integer');
+  // }
   knex('books').select('id').where('id', bookId).then((response) => {
     if (response.length===0) {
       res.set('Content-Type', 'text/plain');
